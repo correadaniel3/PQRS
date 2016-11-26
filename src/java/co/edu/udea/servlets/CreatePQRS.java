@@ -26,6 +26,8 @@ import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -41,6 +43,7 @@ import javax.validation.ConstraintViolationException;
         maxFileSize = 1024 * 1024 * 50, // 50 MB
         maxRequestSize = 1024 * 1024 * 100, // 100 MB
         location = "/")
+@WebServlet(name = "CreatePQRS", urlPatterns = {"/generar"})
 public class CreatePQRS extends HttpServlet {
 
     @EJB(name = "PQRSDAOImpl")
@@ -66,10 +69,15 @@ public class CreatePQRS extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
+                    Cookie[] cookies = null;
+            cookies = request.getCookies();
+            System.out.println(cookies.length);
+            if(cookies.length<=1){
+                request.getRequestDispatcher("/login.jsp").forward(request, response);
+            }
                 List<Aeropuerto> aeropuertos = aeropuertoDAO.getAll();
                 request.setAttribute("aeropuertos", aeropuertos);
         try (PrintWriter out = response.getWriter()) {
-            //Get the http method
             String method = request.getMethod();
             //If POST
             if (method.equals("POST")) {
